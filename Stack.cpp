@@ -44,6 +44,7 @@ Stack::Stack(const ValueType* valueArray, const size_t arraySize, StackContainer
     {
         _pimpl->push(valueArray[i]);
     }
+    delete[] valueArray;
 }
 
 Stack::Stack(const Stack& copyStack)
@@ -58,14 +59,18 @@ Stack& Stack::operator=(const Stack& copyStack)
     {
         throw std::invalid_argument("copyStack is nullptr");
     }
-    _containerType = copyStack._containerType;
-    if (copyStack._containerType == StackContainer::Vector) 
+    if (this != &copyStack)
     {
-        _pimpl = new VectorStack(*dynamic_cast<VectorStack*>(copyStack._pimpl));
-    }
-    if (copyStack._containerType == StackContainer::List) 
-    {
-        _pimpl = new ListStack(*dynamic_cast<ListStack*>(copyStack._pimpl));
+	delete _pimpl;
+    	_containerType = copyStack._containerType;
+    	if (copyStack._containerType == StackContainer::Vector) 
+    	{
+    	    _pimpl = new VectorStack(*dynamic_cast<VectorStack*>(copyStack._pimpl));
+    	}
+    	if (copyStack._containerType == StackContainer::List) 
+    	{
+    	    _pimpl = new ListStack(*dynamic_cast<ListStack*>(copyStack._pimpl));
+    	}
     }
     return *this;
 }
@@ -79,9 +84,10 @@ Stack::Stack(Stack&& moveStack) noexcept
 
 Stack& Stack::operator=(Stack&& moveStack) noexcept 
 {
+    delete _pimpl;
     _pimpl = moveStack._pimpl;
     _containerType = moveStack._containerType;
-    moveStack._pimpl = nullptr;
+    delete moveStack._pimpl;
     return *this;
 }
 
@@ -114,16 +120,3 @@ size_t Stack::size() const
 {
    return _pimpl->size();
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
